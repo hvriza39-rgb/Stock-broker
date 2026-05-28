@@ -1,0 +1,535 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { signupAction } from "@/lib/actions";
+
+export default function SignupPage() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirm: "",
+  });
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+
+    if (form.password !== form.confirm) {
+      setError("Passwords do not match.");
+      return;
+    }
+    if (form.password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+
+    setLoading(true);
+    const result = await signupAction({
+      name: form.name,
+      email: form.email,
+      password: form.password,
+    });
+
+    if (result?.error) {
+      setError(result.error);
+      setLoading(false);
+    }
+  }
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Mono:wght@400;500&family=Manrope:wght@300;400;500;600&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+          --cream: #f5f0e8;
+          --cream-dark: #ede7d9;
+          --cream-darker: #e0d9cc;
+          --ink: #1a1512;
+          --ink-mid: #3d352e;
+          --ink-light: #7a6e65;
+          --red: #c9170a;
+          --red-dark: #9e1108;
+          --serif: 'Playfair Display', Georgia, serif;
+          --mono: 'DM Mono', monospace;
+          --sans: 'Manrope', sans-serif;
+        }
+
+        .auth-shell {
+          min-height: 100vh;
+          background: var(--cream);
+          font-family: var(--sans);
+          display: flex;
+        }
+
+        /* ── LEFT PANEL ── */
+        .auth-left {
+          width: 420px;
+          flex-shrink: 0;
+          background: var(--ink);
+          padding: 48px 44px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          position: relative;
+          overflow: hidden;
+        }
+        .auth-left::before {
+          content: '';
+          position: absolute;
+          bottom: -80px; right: -80px;
+          width: 320px; height: 320px;
+          border: 1px solid rgba(255,255,255,0.04);
+          border-radius: 50%;
+        }
+        .auth-left::after {
+          content: '';
+          position: absolute;
+          bottom: -40px; right: -40px;
+          width: 220px; height: 220px;
+          border: 1px solid rgba(255,255,255,0.03);
+          border-radius: 50%;
+        }
+
+        .auth-brand {
+          font-family: var(--serif);
+          font-size: 1.4rem;
+          font-weight: 900;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: var(--cream);
+        }
+        .auth-brand span { color: var(--red); }
+
+        .auth-panel-body { position: relative; z-index: 1; }
+
+        .auth-panel-tag {
+          font-family: var(--mono);
+          font-size: 0.62rem;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: var(--red);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 20px;
+        }
+        .auth-panel-tag::before {
+          content: '';
+          display: inline-block;
+          width: 20px; height: 1px;
+          background: var(--red);
+        }
+
+        .auth-panel-headline {
+          font-family: var(--serif);
+          font-size: 2.2rem;
+          font-weight: 900;
+          color: var(--cream);
+          line-height: 1.1;
+          margin-bottom: 20px;
+        }
+        .auth-panel-headline em {
+          font-style: italic;
+          color: var(--red);
+        }
+
+        .auth-panel-desc {
+          font-size: 0.85rem;
+          line-height: 1.75;
+          color: #666;
+          font-weight: 300;
+          margin-bottom: 36px;
+        }
+
+        .perks {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+        .perk {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+        }
+        .perk-icon {
+          width: 24px; height: 24px;
+          background: rgba(201,23,10,0.15);
+          border: 1px solid rgba(201,23,10,0.3);
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+          margin-top: 1px;
+        }
+        .perk-text {
+          font-size: 0.82rem;
+          color: #888;
+          line-height: 1.5;
+          font-weight: 300;
+        }
+        .perk-text strong {
+          color: #c8bfb5;
+          font-weight: 500;
+          display: block;
+          font-family: var(--mono);
+          font-size: 0.72rem;
+          letter-spacing: 0.06em;
+          margin-bottom: 2px;
+        }
+
+        .auth-panel-footer {
+          font-family: var(--mono);
+          font-size: 0.6rem;
+          letter-spacing: 0.08em;
+          color: #333;
+          line-height: 1.6;
+        }
+
+        /* ── RIGHT PANEL ── */
+        .auth-right {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 48px;
+          position: relative;
+        }
+        .auth-right::before {
+          content: '';
+          position: absolute;
+          top: 40px; right: 40px; bottom: 40px; left: 40px;
+          border: 1px solid var(--cream-darker);
+          pointer-events: none;
+        }
+
+        .auth-form-wrap {
+          width: 100%;
+          max-width: 420px;
+        }
+
+        .auth-form-tag {
+          font-family: var(--mono);
+          font-size: 0.62rem;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: var(--red);
+          margin-bottom: 10px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .auth-form-tag::before {
+          content: '';
+          display: inline-block;
+          width: 18px; height: 1px;
+          background: var(--red);
+        }
+
+        .auth-form-title {
+          font-family: var(--serif);
+          font-size: 2.2rem;
+          font-weight: 900;
+          color: var(--ink);
+          line-height: 1.1;
+          margin-bottom: 8px;
+        }
+
+        .auth-form-sub {
+          font-size: 0.85rem;
+          color: var(--ink-light);
+          font-weight: 300;
+          margin-bottom: 32px;
+        }
+        .auth-form-sub a {
+          color: var(--red);
+          text-decoration: none;
+          font-weight: 500;
+        }
+        .auth-form-sub a:hover { text-decoration: underline; }
+
+        .field-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+
+        .field { margin-bottom: 16px; }
+        .field.full { grid-column: span 2; }
+
+        .field label {
+          display: block;
+          font-family: var(--mono);
+          font-size: 0.65rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: var(--ink-mid);
+          margin-bottom: 8px;
+        }
+        .field input {
+          width: 100%;
+          background: transparent;
+          border: 1px solid var(--cream-darker);
+          padding: 13px 16px;
+          font-family: var(--mono);
+          font-size: 0.85rem;
+          color: var(--ink);
+          outline: none;
+          transition: border-color 0.2s;
+          appearance: none;
+        }
+        .field input::placeholder { color: var(--ink-light); opacity: 0.6; }
+        .field input:focus { border-color: var(--ink); }
+        .field input.error-input { border-color: var(--red); }
+
+        .password-strength {
+          display: flex;
+          gap: 4px;
+          margin-top: 8px;
+        }
+        .strength-bar {
+          flex: 1;
+          height: 2px;
+          background: var(--cream-darker);
+          transition: background 0.3s;
+        }
+        .strength-bar.active { background: var(--red); }
+        .strength-bar.medium { background: #f59e0b; }
+        .strength-bar.strong { background: #16a34a; }
+
+        .error-msg {
+          background: rgba(201,23,10,0.06);
+          border-left: 2px solid var(--red);
+          padding: 11px 14px;
+          font-family: var(--mono);
+          font-size: 0.72rem;
+          color: var(--red);
+          letter-spacing: 0.04em;
+          margin-bottom: 16px;
+        }
+
+        .submit-btn {
+          width: 100%;
+          background: var(--red);
+          color: white;
+          border: none;
+          padding: 15px;
+          font-family: var(--mono);
+          font-size: 0.78rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: background 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          margin-top: 8px;
+        }
+        .submit-btn:hover:not(:disabled) { background: var(--red-dark); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .spinner {
+          width: 14px; height: 14px;
+          border: 1.5px solid rgba(255,255,255,0.3);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .terms-note {
+          margin-top: 16px;
+          font-family: var(--mono);
+          font-size: 0.6rem;
+          letter-spacing: 0.05em;
+          color: var(--ink-light);
+          text-align: center;
+          line-height: 1.6;
+        }
+        .terms-note a {
+          color: var(--ink-mid);
+          text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+          .auth-left { display: none; }
+          .auth-right { padding: 32px 24px; }
+          .auth-right::before { inset: 20px; }
+          .field-grid { grid-template-columns: 1fr; }
+          .field.full { grid-column: span 1; }
+        }
+      `}</style>
+
+      <div className="auth-left">
+        <div className="auth-brand">Apex<span>•</span>Markets</div>
+
+        <div className="auth-panel-body">
+          <p className="auth-panel-tag">Get started</p>
+          <h2 className="auth-panel-headline">
+            Join <em>180,000+</em><br />active traders.
+          </h2>
+          <p className="auth-panel-desc">
+            Everything you need to trade professionally — from day one.
+          </p>
+
+          <div className="perks">
+            <div className="perk">
+              <div className="perk-icon">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6l3 3 5-5" stroke="#c9170a" strokeWidth="1.2" strokeLinecap="square"/>
+                </svg>
+              </div>
+              <div className="perk-text">
+                <strong>Free demo account</strong>
+                $100,000 virtual funds. No risk, real markets.
+              </div>
+            </div>
+            <div className="perk">
+              <div className="perk-icon">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6l3 3 5-5" stroke="#c9170a" strokeWidth="1.2" strokeLinecap="square"/>
+                </svg>
+              </div>
+              <div className="perk-text">
+                <strong>180+ instruments</strong>
+                Crypto, equities, FX, commodities.
+              </div>
+            </div>
+            <div className="perk">
+              <div className="perk-icon">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6l3 3 5-5" stroke="#c9170a" strokeWidth="1.2" strokeLinecap="square"/>
+                </svg>
+              </div>
+              <div className="perk-text">
+                <strong>0.2ms execution</strong>
+                Institutional-grade order routing.
+              </div>
+            </div>
+            <div className="perk">
+              <div className="perk-icon">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6l3 3 5-5" stroke="#c9170a" strokeWidth="1.2" strokeLinecap="square"/>
+                </svg>
+              </div>
+              <div className="perk-text">
+                <strong>FCA regulated</strong>
+                Segregated client funds. Always protected.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p className="auth-panel-footer">
+          © 2026 Apex Markets Ltd.<br />
+          FCA Regulated · Funds Segregated · 99.9% Uptime
+        </p>
+      </div>
+
+      <div className="auth-right">
+        <div className="auth-form-wrap">
+          <p className="auth-form-tag">Create account</p>
+          <h1 className="auth-form-title">Start trading.</h1>
+          <p className="auth-form-sub">
+            Already have an account?{" "}
+            <Link href="/login">Sign in</Link>
+          </p>
+
+          <form onSubmit={handleSubmit}>
+            {error && <div className="error-msg">{error}</div>}
+
+            <div className="field">
+              <label>Full name</label>
+              <input
+                type="text"
+                placeholder="John Smith"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+                autoComplete="name"
+              />
+            </div>
+
+            <div className="field">
+              <label>Email address</label>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                required
+                autoComplete="email"
+              />
+            </div>
+
+            <div className="field">
+              <label>Password</label>
+              <input
+                type="password"
+                placeholder="Min. 8 characters"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                required
+                autoComplete="new-password"
+              />
+              <div className="password-strength">
+                {[1, 2, 3, 4].map((i) => {
+                  const len = form.password.length;
+                  const cls =
+                    len === 0 ? "" :
+                    len < 6 ? (i === 1 ? "active" : "") :
+                    len < 10 ? (i <= 2 ? "medium" : "") :
+                    len < 14 ? (i <= 3 ? "strong" : "") :
+                    "strong";
+                  return <div key={i} className={`strength-bar ${cls}`} />;
+                })}
+              </div>
+            </div>
+
+            <div className="field">
+              <label>Confirm password</label>
+              <input
+                type="password"
+                placeholder="Repeat password"
+                value={form.confirm}
+                onChange={(e) => setForm({ ...form, confirm: e.target.value })}
+                required
+                autoComplete="new-password"
+                className={
+                  form.confirm && form.confirm !== form.password ? "error-input" : ""
+                }
+              />
+            </div>
+
+            <button type="submit" className="submit-btn" disabled={loading}>
+              {loading ? (
+                <>
+                  <span className="spinner" />
+                  Creating account...
+                </>
+              ) : (
+                <>
+                  Create Account
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M3 7h8M7 3l4 4-4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="square"/>
+                  </svg>
+                </>
+              )}
+            </button>
+          </form>
+
+          <p className="terms-note">
+            By creating an account you agree to our{" "}
+            <a href="#">Terms of Service</a> and{" "}
+            <a href="#">Privacy Policy</a>.
+          </p>
+        </div>
+      </div>
+    </>
+  );
+}
