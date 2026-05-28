@@ -949,7 +949,7 @@ export default function HomePage() {
         {/* STATS */}
         <div className="lp-stats-band">
           {[
-            { n: '01', val: '$4.8B', label: 'Daily trading volume processed on our platform' },
+            { n: '01', val: '$4.8B', label: 'Daily trading volume processed ' },
             { n: '02', val: '0.2ms', label: 'Average order execution latency' },
             { n: '03', val: '180+', label: 'Global markets and instruments available' },
             { n: '04', val: '99.9%', label: 'Platform uptime guaranteed by SLA' },
